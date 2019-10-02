@@ -411,6 +411,9 @@ class MachineMotion:
         self.myMqttClient.connect_async(machineIp)
         self.myMqttClient.loop_start()
 
+        # Lock to access sending gCode
+        self.gCodeLock = threading.Lock()
+
         machineMotionRef = self
         gCodeCallbackRef = gCodeCallback
 
@@ -465,7 +468,8 @@ class MachineMotion:
         global waiting_current_position
 
         waiting_current_position = "true"
-        self.myGCode.__emit__("M114")
+        with self.gCodeLock :
+            self.myGCode.__emit__("M114")
         while self.isReady() != "true" and waiting_current_position == "true": pass
 
         return self.myGCode.currentPositions
@@ -479,13 +483,17 @@ class MachineMotion:
 
         motion_completed = "false"
 
-        self.myGCode.__emit__("M410")
+        with self.gCodeLock :
+            self.myGCode.__emit__("M410")
 
         # Wait and send a dummy packet to insure that other commands after the emit stop are not flushed.
         time.sleep(0.500)
-        self.myGCode.__emit__("G91")
+        with self.gCodeLock :
+            self.myGCode.__emit__("G91")
         while self.isReady() != "true": pass
-        self.myGCode.__emit__("G0 X0")
+
+        with self.gCodeLock :
+            self.myGCode.__emit__("G0 X0")
         while self.isReady() != "true": pass
 
     #
@@ -497,7 +505,8 @@ class MachineMotion:
 
         motion_completed = "false"
 
-        self.myGCode.__emit__("G28")
+        with self.gCodeLock :
+            self.myGCode.__emit__("G28")
 
         while self.isReady() != "true": pass
 
@@ -510,8 +519,8 @@ class MachineMotion:
         global motion_completed
 
         motion_completed = "false"
-
-        self.myGCode.__emit__("G28 " + self.myGCode.__getTrueAxis__(axis))
+        with self.gCodeLock :
+            self.myGCode.__emit__("G28 " + self.myGCode.__getTrueAxis__(axis))
 
         while self.isReady() != "true": pass
 
@@ -521,7 +530,8 @@ class MachineMotion:
     # @status
     #
     def emitSpeed(self, mm_per_min):
-        self.myGCode.__emit__("G0 F" +str(mm_per_min))
+        with self.gCodeLock :
+            self.myGCode.__emit__("G0 F" +str(mm_per_min))
         while self.isReady() != "true": pass
 
     #
@@ -530,7 +540,8 @@ class MachineMotion:
     # @status
     #
     def emitAcceleration(self, mm_per_sec_sqr):
-        self.myGCode.__emit__("M204 T" + str(mm_per_sec_sqr))
+        with self.gCodeLock :
+            self.myGCode.__emit__("M204 T" + str(mm_per_sec_sqr))
         while self.isReady() != "true": pass
 
     #
@@ -545,11 +556,13 @@ class MachineMotion:
         motion_completed = "false"
 
         # Set to absolute motion mode
-        self.myGCode.__emit__("G90")
+        with self.gCodeLock :
+            self.myGCode.__emit__("G90")
         while self.isReady() != "true": pass
 
         # Transmit move command
-        self.myGCode.__emit__("G0 " + self.myGCode.__getTrueAxis__(axis) + str(position))
+        with self.gCodeLock :
+            self.myGCode.__emit__("G0 " + self.myGCode.__getTrueAxis__(axis) + str(position))
         while self.isReady() != "true": pass
 
     #
@@ -567,14 +580,17 @@ class MachineMotion:
         motion_completed = "false"
 
         # Set to absolute motion mode
-        self.myGCode.__emit__("G90")
+        with self.gCodeLock :
+            self.myGCode.__emit__("G90")
         while self.isReady() != "true": pass
 
         # Transmit move command
         command = "G0 "
         for axis, position in zip(axes, positions):
             command += self.myGCode.__getTrueAxis__(axis) + str(position) + " "
-        self.myGCode.__emit__(command)
+
+        with self.gCodeLock :
+            self.myGCode.__emit__(command)
         while self.isReady() != "true": pass
 
     #
@@ -590,14 +606,16 @@ class MachineMotion:
         motion_completed = "false"
 
         # Set to relative motion mode
-        self.myGCode.__emit__("G91")
+        with self.gCodeLock :
+            self.myGCode.__emit__("G91")
         while self.isReady() != "true": pass
 
         if direction == "positive":distance = "" + str(distance)
         elif direction  == "negative": distance = "-" + str(distance)
 
         # Transmit move command
-        self.myGCode.__emit__("G0 " + self.myGCode.__getTrueAxis__(axis) + str(distance))
+        with self.gCodeLock :
+            self.myGCode.__emit__("G0 " + self.myGCode.__getTrueAxis__(axis) + str(distance))
         while self.isReady() != "true": pass
 
     #
@@ -616,7 +634,8 @@ class MachineMotion:
         motion_completed = "false"
 
         # Set to relative motion mode
-        self.myGCode.__emit__("G91")
+        with self.gCodeLock :
+            self.myGCode.__emit__("G91")
         while self.isReady() != "true": pass
 
         # Transmit move command
@@ -625,7 +644,9 @@ class MachineMotion:
             if direction == "positive": distance = "" + str(distance)
             elif direction  == "negative": distance = "-" + str(distance)
             command += self.myGCode.__getTrueAxis__(axis) + str(distance) + " "
-        self.myGCode.__emit__(command)
+
+        with self.gCodeLock :
+            self.myGCode.__emit__(command)
         while self.isReady() != "true": pass
 
     #
@@ -638,14 +659,16 @@ class MachineMotion:
 
         motion_completed = "false"
 
-        self.myGCode.__emit__(gCode)
+        with self.gCodeLock :
+            self.myGCode.__emit__(gCode)
 
     #
     # Function that indicates if the GCode communication port is ready to send another command.
     # @status
     #
     def isReady(self):
-        return self.myGCode.__isReady__()
+        with self.gCodeLock :
+            return self.myGCode.__isReady__()
 
     #
     # Function that indicates if the the last move has completed
@@ -697,13 +720,16 @@ class MachineMotion:
         if (self.valid_u_step.index(u_step) != -1):
             if(axis == 1):
                 self.myAxis1_steps_mm = 200 * u_step / mech_gain
-                self.myGCode.__emit__("M92 " + self.myGCode.__getTrueAxis__(axis) + str(self.myAxis1_steps_mm))
+                with self.gCodeLock :
+                    self.myGCode.__emit__("M92 " + self.myGCode.__getTrueAxis__(axis) + str(self.myAxis1_steps_mm))
             elif(axis == 2):
                 self.myAxis1_steps_mm = 200 * u_step / mech_gain
-                self.myGCode.__emit__("M92 " + self.myGCode.__getTrueAxis__(axis) + str(self.myAxis1_steps_mm))
+                with self.gCodeLock :
+                    self.myGCode.__emit__("M92 " + self.myGCode.__getTrueAxis__(axis) + str(self.myAxis1_steps_mm))
             elif(axis == 3):
                 self.myAxis1_steps_mm = 200 * u_step / mech_gain
-                self.myGCode.__emit__("M92 " + self.myGCode.__getTrueAxis__(axis) + str(self.myAxis1_steps_mm))
+                with self.gCodeLock :
+                    self.myGCode.__emit__("M92 " + self.myGCode.__getTrueAxis__(axis) + str(self.myAxis1_steps_mm))
             else:
                 pass
                 # print "Argument error, {configAxis(self, axis, u_step, mech_gain)}, {axis} argument is invalid"
