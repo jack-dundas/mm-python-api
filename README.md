@@ -30,15 +30,15 @@ To set up the MachineMotion Python Library on your computer, follow the steps be
 - Open the command prompt (for Windows) or the terminal (for Mac or Linux) and run the following installations  
 
   ```console
-  pip install -U socketIO-client
+  python -m pip install -U socketIO-client
   ```  
   
   ```console
-  pip install -U pathlib
+  python -m pip install -U pathlib
   ```
 
   ```console
-  pip install -U paho-mqtt
+  python -m pip install -U paho-mqtt
   ```
 
 - The MachineMotion Python library is now ready to use. Programs can be created and ran from the examples folder.
