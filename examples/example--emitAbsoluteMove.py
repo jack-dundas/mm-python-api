@@ -41,18 +41,6 @@ print ("Application Message: Motion on-going ... \n")
 mm.waitForMotionCompletion()
 print ("Application Message: Motion completed \n")
 
-mm.setAxisDirection(1, "reverse")
-print ("Application Message: Axis 1 direction reverse \n")
-
-# Homing axis 1
-mm.emitHome(1)
-print ("Application Message: Axis 1 is at home \n")
-
-# Move the axis 1 to position 100 mm
-mm.emitAbsoluteMove(1, 100)
-print ("Application Message: Motion on-going ... \n")
-
-
 print ("Application Message: Program terminating ... \n")
 time.sleep(1)
 sys.exit(0)

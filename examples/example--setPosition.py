@@ -4,7 +4,7 @@
 ## Author: Francois Giguere
 ## Version: 1.6.8
 ## Email: info@vention.cc
-## Status: tested
+## Status: rdy for test
 ##################################################
 
 from _MachineMotion_1_6_8 import *
@@ -26,7 +26,7 @@ print ("Application Message: MachineMotion axis 1 configured \n")
 mm.setPosition(1, 100)
 print ("Application Message: Position set to 100 mm on axis 1\n")
 
-mm.emitRelativeMove(1, "negative", 50)
+mm.moveRelative(1, "negative", 50)
 print ("Application Message: Moving in the negative direction ... \n")
 
 mm.waitForMotionCompletion()
