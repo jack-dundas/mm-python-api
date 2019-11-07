@@ -7,13 +7,11 @@
 ## Status: tested
 ##################################################
 
-enableDebug = False
-
 from _MachineMotion_1_6_8 import *
 
 # Define a callback to process controller gCode responses if desired. This is mostly used for debugging purposes.
 def debug(data):
-    if(enableDebug): print("Debug Message: " + data + "\n")
+    pass
    
 # Define a callback to invoke when a control device is attached to the controller
 def attachCallback(data):
@@ -114,15 +112,15 @@ for count in range (0, 5):
 
     readInputs()
     
-    time.sleep(1)
+    time.sleep(2)
     
     readOutputs()
     
-    time.sleep(1)
+    time.sleep(2)
     
     writeOutputs()
     
-    time.sleep(1)
+    time.sleep(2)
 
 # Detach (deconfigure) a control device that was previously attached to the MachineMotion controller.
 mm.detachControlDevice("SENSOR4", detachCallback)
