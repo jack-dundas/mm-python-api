@@ -7,13 +7,11 @@
 ## Status: tested
 ##################################################
 
-enableDebug = True
-
 from _MachineMotion_1_6_8 import *
 
 # Define a callback to process controller gCode responses if desired. This is mostly used for debugging purposes.
 def debug(data):
-    if(enableDebug): print("Debug Message: " + data + "\n")
+    pass
 
 print ("Application Message: MachineMotion Program Starting \n")
 
@@ -24,8 +22,8 @@ print ("Application Message: MachineMotion Controller Connected \n")
 mm.configAxis(1, MICRO_STEPS.ustep_8, MECH_GAIN.timing_belt_150mm_turn)
 print ("Application Message: MachineMotion Axis 1 Configured \n")
 
-# Configuring the travel acceleration to 250 mm / second^2
-mm.emitAcceleration(250)
+# Configuring the travel acceleration to 100 mm / second^2
+mm.emitAcceleration(100)
 print ("Application Message: Acceleration configured \n")
 
 print ("Application Message: Program terminating ... \n")

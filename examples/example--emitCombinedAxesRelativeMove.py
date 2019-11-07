@@ -7,13 +7,11 @@
 ## Status: tested
 ##################################################
 
-enableDebug = False
-
 from _MachineMotion_1_6_8 import *
 
 # Define a callback to process controller gCode responses if desired. This is mostly used for debugging purposes.
 def debug(data):
-    if(enableDebug): print("Debug Message: " + data + "\n")
+    pass
 
 print ("Application Message: MachineMotion Program Starting \n")
 
@@ -28,8 +26,8 @@ print ("Application Message: MachineMotion Axis 1 Configured \n")
 mm.emitSpeed(10000)
 print ("Application Message: Speed configured \n")
 
-# Configuring the travel speed to 250 mm / second^2
-mm.emitAcceleration(250)
+# Configuring the travel speed to 1000 mm / second^2
+mm.emitAcceleration(1000)
 print ("Application Message: Acceleration configured \n")
 
 # Homing all axes
